@@ -66,13 +66,42 @@ const seed = (data) => {
       );
       return Promise.all([db.query(insertCategories), db.query(insertUsers)]);
     })
-    .then(() => {});
-  // .then(() => {
-  //   return db.query("SELECT * FROM users");
-  // })
-  // .then(({ rows }) => {
-  //   console.log(rows);
-  // });
+    .then(() => {
+      const insertReviews = format(
+        `INSERT INTO reviews
+        (title, review_body, designer, review_img_url, votes, category, owner, created_at)
+        VALUES
+        %L;`,
+        reviewData.map((review) => [
+          review.title,
+          review.review_body,
+          review.designer,
+          review.review_img_url,
+          review.votes,
+          review.category,
+          review.owner,
+          review.created_at,
+        ])
+      );
+      return db.query(insertReviews);
+    })
+    .then(() => {
+      const insertComments = format(
+        `INSERT INTO comments
+        (author, review_id, votes, created_at, body)
+        VALUES
+        %L;`,
+        commentData.map((comment) => [
+          comment.author,
+          comment.review_id,
+          comment.votes,
+          comment.created_at,
+          comment.body,
+        ])
+      );
+      return db.query(insertComments);
+    })
+    .catch(console.log);
 };
 
 module.exports = seed;
