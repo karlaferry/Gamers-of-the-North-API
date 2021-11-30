@@ -19,6 +19,19 @@ describe("GET /api/categories", () => {
     expect(categories).toHaveLength(4);
     expect(categories).toBeInstanceOf(Array);
   });
+  it("200: objects in array contains slug and description", async () => {
+    const {
+      body: { categories },
+    } = await request(app).get("/api/categories").expect(200);
+    categories.forEach((category) => {
+      expect(category).toEqual(
+        expect.objectContaining({
+          slug: expect.any(String),
+          description: expect.any(String),
+        })
+      );
+    });
+  });
   it("404: returns a page not found error when path is misspelt", async () => {
     const { statusCode } = await request(app)
       .get("/api/categoriez")
