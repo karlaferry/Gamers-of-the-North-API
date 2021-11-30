@@ -1,7 +1,6 @@
 const {
   selectCategories,
   selectReviewById,
-  checkIfExists,
 } = require("../models/games.models");
 
 exports.getCategories = (req, res, next) => {
