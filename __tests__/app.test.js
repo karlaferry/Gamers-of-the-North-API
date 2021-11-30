@@ -39,3 +39,42 @@ describe("GET /api/categories", () => {
     expect(statusCode).toBe(404);
   });
 });
+
+describe("GET /api/reviews/:review_id", () => {
+  it('200: returns an object with "review" key and value of array', async () => {
+    const {
+      body: { review },
+    } = await request(app).get("/api/reviews/2").expect(200);
+    expect(review).toBeInstanceOf(Array);
+  });
+  it("200: object in array contains owner, title, review_id, review_body, designer, review_img_url, category, created_at, votes, comment_count", async () => {
+    const {
+      body: { review },
+    } = await request(app).get("/api/reviews/2").expect(200);
+    expect(review).toHaveLength(1);
+    expect(review[0]).toEqual(
+      expect.objectContaining({
+        owner: expect.any(String),
+        title: expect.any(String),
+        review_id: expect.any(Number),
+        review_body: expect.any(String),
+        designer: expect.any(String),
+        review_img_url: expect.any(String),
+        category: expect.any(String),
+        created_at: expect.any(String),
+        votes: expect.any(Number),
+        comment_count: expect.any(Number),
+      })
+    );
+  });
+  it("400: returns 'Bad request.' when entered a wrong id data type", async () => {
+    const {
+      body: { msg },
+    } = await request(app).get("/api/reviews/banana").expect(400);
+    expect(msg).toBe("Bad request.");
+  });
+  it("404: returns 'ID does not exist' when id doesn't exist", async () => {
+    const { body } = await request(app).get("/api/reviews/55").expect(404);
+    expect(body.msg).toBe("ID does not exist.");
+  });
+});
