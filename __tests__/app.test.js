@@ -77,4 +77,8 @@ describe("GET /api/reviews/:review_id", () => {
     const { body } = await request(app).get("/api/reviews/55").expect(404);
     expect(body.msg).toBe("ID does not exist.");
   });
+  it("404: returns a page not found error when path is misspelt", async () => {
+    const { statusCode } = await request(app).get("/api/reviewz/2").expect(404);
+    expect(statusCode).toBe(404);
+  });
 });
