@@ -82,3 +82,22 @@ describe("GET /api/reviews/:review_id", () => {
     expect(statusCode).toBe(404);
   });
 });
+
+describe("PATCH /api/reviews/:review_id", () => {
+  it("201: returns the updated review with increased votes", async () => {
+    const { rows } = await db.query(
+      `SELECT * FROM reviews WHERE review_id = 2`
+    );
+    const originalVoteCount = rows[0].votes;
+    const {
+      body: { review },
+    } = await request(app)
+      .patch("/api/reviews/2")
+      .send({ inc_votes: 1 })
+      .expect(201);
+    console.log(review);
+    expect(review).toBeInstanceOf(Array);
+    expect(review).toHaveLength(1);
+    expect(review[0].votes).toBe(originalVoteCount + 1);
+  });
+});

@@ -7,6 +7,12 @@ exports.selectCategories = () => {
 };
 
 exports.selectReviewById = (id) => {
+  if (isNaN(id) === true) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request.",
+    });
+  }
   const query = {
     text: `
     SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count 
@@ -15,12 +21,6 @@ exports.selectReviewById = (id) => {
     GROUP BY reviews.review_id;`,
     values: [id],
   };
-  if (isNaN(id) === true) {
-    return Promise.reject({
-      status: 400,
-      msg: "Bad request.",
-    });
-  }
   return db.query(query).then(({ rows }) => {
     if (rows[0] === undefined) {
       return Promise.reject({
@@ -29,5 +29,23 @@ exports.selectReviewById = (id) => {
       });
     }
     return { review: rows };
+  });
+};
+
+exports.alterVotesById = (id, vote) => {
+  if (isNaN(id) === true) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request.",
+    });
+  }
+  const query = {
+    text: `UPDATE reviews SET votes = (votes + ${vote}) WHERE review_id = $1 RETURNING*;`,
+    values: [id],
+  };
+  return db.query(query).then(({ rows }) => {
+    return {
+      review: rows,
+    };
   });
 };
