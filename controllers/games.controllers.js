@@ -3,6 +3,7 @@ const {
   selectReviewById,
   alterVotesById,
 } = require("../models/games.models");
+const { checkIfIdExists } = require("../db/utils");
 
 exports.getCategories = (req, res, next) => {
   selectCategories()
@@ -14,9 +15,12 @@ exports.getCategories = (req, res, next) => {
 
 exports.getReviewById = (req, res, next) => {
   const { review_id } = req.params;
-  selectReviewById(review_id)
+  return Promise.all([
+    selectReviewById(review_id),
+    checkIfIdExists("review_id", review_id, "reviews"),
+  ])
     .then((response) => {
-      res.status(200).send(response);
+      res.status(200).send(response[0]);
     })
     .catch(next);
 };
@@ -24,9 +28,12 @@ exports.getReviewById = (req, res, next) => {
 exports.updateVotesById = (req, res, next) => {
   const { review_id } = req.params;
   const { body } = req;
-  alterVotesById(review_id, body.inc_votes)
+  return Promise.all([
+    alterVotesById(review_id, body.inc_votes),
+    checkIfIdExists("review_id", review_id, "reviews"),
+  ])
     .then((response) => {
-      res.status(201).send(response);
+      res.status(200).send(response[0]);
     })
     .catch(next);
 };
