@@ -86,78 +86,84 @@ describe("GET /api/reviews/:review_id", () => {
 });
 
 describe("PATCH /api/reviews/:review_id", () => {
-  it("200: returns the updated review with increased votes", async () => {
-    const { rows } = await db.query(
-      `SELECT * FROM reviews WHERE review_id = 2`
-    );
-    const originalVoteCount = rows[0].votes;
-    const {
-      body: { review },
-    } = await request(app)
-      .patch("/api/reviews/2")
-      .send({ inc_votes: 1 })
-      .expect(200);
-    expect(review).toBeInstanceOf(Array);
-    expect(review).toHaveLength(1);
-    expect(review[0].votes).toBe(originalVoteCount + 1);
+  describe("200: OK", () => {
+    it("200: returns the updated review with increased votes", async () => {
+      const { rows } = await db.query(
+        `SELECT * FROM reviews WHERE review_id = 2`
+      );
+      const originalVoteCount = rows[0].votes;
+      const {
+        body: { review },
+      } = await request(app)
+        .patch("/api/reviews/2")
+        .send({ inc_votes: 1 })
+        .expect(200);
+      expect(review).toBeInstanceOf(Array);
+      expect(review).toHaveLength(1);
+      expect(review[0].votes).toBe(originalVoteCount + 1);
+    });
+    it("200: returns the updated review with decreased votes ", async () => {
+      const { rows } = await db.query(
+        `SELECT * FROM reviews WHERE review_id = 2`
+      );
+      const originalVoteCount = rows[0].votes;
+      const {
+        body: { review },
+      } = await request(app)
+        .patch("/api/reviews/2")
+        .send({ inc_votes: -10 })
+        .expect(200);
+      expect(review).toBeInstanceOf(Array);
+      expect(review).toHaveLength(1);
+      expect(review[0].votes).toBe(originalVoteCount - 10);
+    });
   });
-  it("200: returns the updated review with decreased votes ", async () => {
-    const { rows } = await db.query(
-      `SELECT * FROM reviews WHERE review_id = 2`
-    );
-    const originalVoteCount = rows[0].votes;
-    const {
-      body: { review },
-    } = await request(app)
-      .patch("/api/reviews/2")
-      .send({ inc_votes: -10 })
-      .expect(200);
-    expect(review).toBeInstanceOf(Array);
-    expect(review).toHaveLength(1);
-    expect(review[0].votes).toBe(originalVoteCount - 10);
+  describe("400: Bad request", () => {
+    it("400: returns 'Bad request. Invalid ID' when id is in the wrong data type", async () => {
+      const {
+        body: { msg },
+      } = await request(app)
+        .patch("/api/reviews/bananas")
+        .send({ inc_votes: 1 })
+        .expect(400);
+      expect(msg).toBe("Bad request. Invalid ID.");
+    });
+    it("400: returns 'Bad request. Invalid post body.' when post body object key is invalid", async () => {
+      const {
+        body: { msg },
+      } = await request(app)
+        .patch("/api/reviews/2")
+        .send({ inc_votez: 1 })
+        .expect(400);
+      expect(msg).toBe("Bad request. Invalid post body.");
+    });
+    it("400: returns 'Bad request. Invalid vote.' when post body object value is not a number ", async () => {
+      const {
+        body: { msg },
+      } = await request(app)
+        .patch("/api/reviews/2")
+        .send({ inc_votes: "one" })
+        .expect(400);
+      expect(msg).toBe("Bad request. Invalid vote.");
+    });
   });
-  it("400: returns 'Bad request. Invalid ID' when id is in the wrong data type", async () => {
-    const {
-      body: { msg },
-    } = await request(app)
-      .patch("/api/reviews/bananas")
-      .send({ inc_votes: 1 })
-      .expect(400);
-    expect(msg).toBe("Bad request. Invalid ID.");
-  });
-  it("400: returns 'Bad request. Invalid post body.' when post body object key is invalid", async () => {
-    const {
-      body: { msg },
-    } = await request(app)
-      .patch("/api/reviews/2")
-      .send({ inc_votez: 1 })
-      .expect(400);
-    expect(msg).toBe("Bad request. Invalid post body.");
-  });
-  it("400: returns 'Bad request. Invalid vote.' when post body object value is not a number ", async () => {
-    const {
-      body: { msg },
-    } = await request(app)
-      .patch("/api/reviews/2")
-      .send({ inc_votes: "one" })
-      .expect(400);
-    expect(msg).toBe("Bad request. Invalid vote.");
-  });
-  it("404: returns 'ID does not exist.' when id doesn't exist", async () => {
-    const {
-      body: { msg },
-    } = await request(app)
-      .patch("/api/reviews/55")
-      .send({ inc_votes: 1 })
-      .expect(404);
-    expect(msg).toBe("ID does not exist.");
-  });
-  it("404: returns a page not found error when path is misspelt", async () => {
-    const { statusCode } = await request(app)
-      .patch("/api/reviewz/2")
-      .send({ inc_votes: 1 })
-      .expect(404);
-    expect(statusCode).toBe(404);
+  describe("404: Page not found", () => {
+    it("404: returns 'ID does not exist.' when id doesn't exist", async () => {
+      const {
+        body: { msg },
+      } = await request(app)
+        .patch("/api/reviews/55")
+        .send({ inc_votes: 1 })
+        .expect(404);
+      expect(msg).toBe("ID does not exist.");
+    });
+    it("404: returns a page not found error when path is misspelt", async () => {
+      const { statusCode } = await request(app)
+        .patch("/api/reviewz/2")
+        .send({ inc_votes: 1 })
+        .expect(404);
+      expect(statusCode).toBe(404);
+    });
   });
 });
 
