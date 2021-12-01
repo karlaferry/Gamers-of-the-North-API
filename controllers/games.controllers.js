@@ -29,7 +29,7 @@ exports.updateVotesById = (req, res, next) => {
   const { review_id } = req.params;
   const { body } = req;
   return Promise.all([
-    alterVotesById(review_id, body.inc_votes),
+    alterVotesById(review_id, body),
     checkIfIdExists("review_id", review_id, "reviews"),
   ])
     .then((response) => {

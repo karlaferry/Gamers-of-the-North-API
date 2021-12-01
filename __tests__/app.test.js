@@ -67,7 +67,7 @@ describe("GET /api/reviews/:review_id", () => {
       })
     );
   });
-  it("returns 'Bad request. Invalid ID.' when id is in the wrong data type", async () => {
+  it("400: returns 'Bad request. Invalid ID.' when id is in the wrong data type", async () => {
     const {
       body: { msg },
     } = await request(app).get("/api/reviews/banana").expect(400);
@@ -125,6 +125,24 @@ describe("PATCH /api/reviews/:review_id", () => {
       .expect(400);
     expect(msg).toBe("Bad request. Invalid ID.");
   });
+  it("400: returns 'Bad request. Invalid post body.' when post body object key is invalid", async () => {
+    const {
+      body: { msg },
+    } = await request(app)
+      .patch("/api/reviews/2")
+      .send({ inc_votez: 1 })
+      .expect(400);
+    expect(msg).toBe("Bad request. Invalid post body.");
+  });
+  it("400: returns 'Bad request. Invalid vote.' when post body object value is not a number ", async () => {
+    const {
+      body: { msg },
+    } = await request(app)
+      .patch("/api/reviews/2")
+      .send({ inc_votes: "one" })
+      .expect(400);
+    expect(msg).toBe("Bad request. Invalid vote.");
+  });
   it("404: returns 'ID does not exist.' when id doesn't exist", async () => {
     const {
       body: { msg },
@@ -141,4 +159,8 @@ describe("PATCH /api/reviews/:review_id", () => {
       .expect(404);
     expect(statusCode).toBe(404);
   });
+});
+
+describe("GET /api/reviews", () => {
+  it("", () => {});
 });
