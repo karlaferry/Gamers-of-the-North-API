@@ -1,6 +1,7 @@
 const db = require("../db/connection");
 
 exports.checkIfIdExists = async (paramKey, id, table) => {
+  // console.log(paramKey, id, table);
   if (isNaN(id)) {
     return Promise.reject({
       status: 400,

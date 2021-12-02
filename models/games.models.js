@@ -110,3 +110,11 @@ exports.insertComment = (id, comment) => {
     return { comment: rows[0] };
   });
 };
+
+exports.removeComment = (id) => {
+  const query = {
+    text: `DELETE FROM comments WHERE comment_id = $1;`,
+    values: [id],
+  };
+  return db.query(query);
+};

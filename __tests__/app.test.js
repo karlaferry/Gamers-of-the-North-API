@@ -360,3 +360,28 @@ describe("POST /api/reviews/:review_id/comments", () => {
     expect(msg).toBe("User does not exist.");
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+  it("204: deletes the comment and returns no content", async () => {
+    const { statusCode } = await request(app)
+      .delete("/api/comments/2")
+      .expect(204);
+    expect(statusCode).toBe(204);
+    const { rows } = await db.query(
+      "SELECT * FROM comments WHERE comment_id = 2"
+    );
+    expect(rows).toHaveLength(0);
+  });
+  it("400: returns 'Bad request. Invalid ID' when id is in the wrong data type", async () => {
+    const {
+      body: { msg },
+    } = await request(app).delete("/api/comments/bananas").expect(400);
+    expect(msg).toBe("Bad request. Invalid ID.");
+  });
+  it("404: returns 'ID does not exist' when id is in the wrong data type", async () => {
+    const {
+      body: { msg },
+    } = await request(app).delete("/api/comments/34985739457").expect(404);
+    expect(msg).toBe("ID does not exist.");
+  });
+});

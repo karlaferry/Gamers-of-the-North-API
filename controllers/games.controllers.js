@@ -5,6 +5,7 @@ const {
   selectReviews,
   selectCommentsByReviewId,
   insertComment,
+  removeComment,
 } = require("../models/games.models");
 const { checkIfIdExists, checkIfUserNameExists } = require("../db/utils");
 const { lastIndexOf } = require("../db/data/test-data/categories");
@@ -83,6 +84,18 @@ exports.postComment = (req, res, next) => {
     })
     .then((response) => {
       res.status(201).send(response);
+    })
+    .catch(next);
+};
+
+exports.deleteComment = (req, res, next) => {
+  const { comment_id } = req.params;
+  return checkIfIdExists("comment_id", comment_id, "comments")
+    .then(() => {
+      return removeComment(comment_id);
+    })
+    .then(() => {
+      res.status(204).send("");
     })
     .catch(next);
 };
