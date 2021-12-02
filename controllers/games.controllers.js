@@ -6,9 +6,9 @@ const {
   selectCommentsByReviewId,
   insertComment,
   removeComment,
+  fetchDescription,
 } = require("../models/games.models");
 const { checkIfIdExists, checkIfUserNameExists } = require("../db/utils");
-const { lastIndexOf } = require("../db/data/test-data/categories");
 
 exports.getCategories = (req, res, next) => {
   selectCategories()
@@ -96,6 +96,14 @@ exports.deleteComment = (req, res, next) => {
     })
     .then(() => {
       res.status(204).send("");
+    })
+    .catch(next);
+};
+
+exports.getDescription = (req, res, next) => {
+  fetchDescription()
+    .then((response) => {
+      res.status(200).send(response);
     })
     .catch(next);
 };

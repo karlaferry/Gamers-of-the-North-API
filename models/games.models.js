@@ -1,5 +1,6 @@
 const db = require("../db/connection");
 const format = require("pg-format");
+const description = require("../description.json");
 
 exports.selectCategories = () => {
   return db.query("SELECT * FROM categories").then(({ rows }) => {
@@ -17,7 +18,7 @@ exports.selectReviewById = (id) => {
     values: [id],
   };
   return db.query(query).then(({ rows }) => {
-    return { review: rows };
+    return { review: rows[0] };
   });
 };
 
@@ -39,7 +40,7 @@ exports.alterVotesById = (id, voteBody) => {
   };
   return db.query(query).then(({ rows }) => {
     return {
-      review: rows,
+      review: rows[0],
     };
   });
 };
@@ -117,4 +118,8 @@ exports.removeComment = (id) => {
     values: [id],
   };
   return db.query(query);
+};
+
+exports.fetchDescription = () => {
+  return Promise.resolve(description);
 };

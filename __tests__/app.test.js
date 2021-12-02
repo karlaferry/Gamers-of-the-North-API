@@ -41,18 +41,17 @@ describe("GET /api/categories", () => {
 });
 
 describe("GET /api/reviews/:review_id", () => {
-  it('200: returns an object with "review" key and value of array', async () => {
+  it('200: returns an object with "review" key and value of object', async () => {
     const {
       body: { review },
     } = await request(app).get("/api/reviews/2").expect(200);
-    expect(review).toBeInstanceOf(Array);
+    expect(review).toBeInstanceOf(Object);
   });
-  it("200: object in array contains owner, title, review_id, review_body, designer, review_img_url, category, created_at, votes, comment_count", async () => {
+  it("200: object contains owner, title, review_id, review_body, designer, review_img_url, category, created_at, votes, comment_count", async () => {
     const {
       body: { review },
     } = await request(app).get("/api/reviews/2").expect(200);
-    expect(review).toHaveLength(1);
-    expect(review[0]).toEqual(
+    expect(review).toEqual(
       expect.objectContaining({
         owner: expect.any(String),
         title: expect.any(String),
@@ -98,9 +97,8 @@ describe("PATCH /api/reviews/:review_id", () => {
         .patch("/api/reviews/2")
         .send({ inc_votes: 1 })
         .expect(200);
-      expect(review).toBeInstanceOf(Array);
-      expect(review).toHaveLength(1);
-      expect(review[0].votes).toBe(originalVoteCount + 1);
+      expect(review).toBeInstanceOf(Object);
+      expect(review.votes).toBe(originalVoteCount + 1);
     });
     it("200: returns the updated review with decreased votes ", async () => {
       const { rows } = await db.query(
@@ -113,9 +111,8 @@ describe("PATCH /api/reviews/:review_id", () => {
         .patch("/api/reviews/2")
         .send({ inc_votes: -10 })
         .expect(200);
-      expect(review).toBeInstanceOf(Array);
-      expect(review).toHaveLength(1);
-      expect(review[0].votes).toBe(originalVoteCount - 10);
+      expect(review).toBeInstanceOf(Object);
+      expect(review.votes).toBe(originalVoteCount - 10);
     });
   });
   describe("400: Bad request", () => {
@@ -383,5 +380,12 @@ describe("DELETE /api/comments/:comment_id", () => {
       body: { msg },
     } = await request(app).delete("/api/comments/34985739457").expect(404);
     expect(msg).toBe("ID does not exist.");
+  });
+});
+
+describe("GET /api", () => {
+  it("200: returns a JSON object describing the API", async () => {
+    const { body } = await request(app).get("/api").expect(200);
+    expect(body).toBeInstanceOf(Object);
   });
 });
