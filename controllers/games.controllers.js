@@ -2,8 +2,10 @@ const {
   selectCategories,
   selectReviewById,
   alterVotesById,
+  selectReviews,
 } = require("../models/games.models");
 const { checkIfIdExists } = require("../db/utils");
+const { lastIndexOf } = require("../db/data/test-data/categories");
 
 exports.getCategories = (req, res, next) => {
   selectCategories()
@@ -34,6 +36,22 @@ exports.updateVotesById = (req, res, next) => {
   ])
     .then((response) => {
       res.status(200).send(response[0]);
+    })
+    .catch(next);
+};
+
+exports.getReviews = (req, res, next) => {
+  const queries = {};
+  queries.criteria = req.query.sort_by || "created_at";
+  queries.order = req.query.order || "DESC";
+
+  if (req.query.hasOwnProperty("category")) {
+    queries.category = req.query.category;
+  }
+
+  selectReviews(queries)
+    .then((response) => {
+      res.status(200).send(response);
     })
     .catch(next);
 };
