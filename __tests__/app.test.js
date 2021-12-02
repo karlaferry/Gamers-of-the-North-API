@@ -293,3 +293,70 @@ describe("GET /api/reviews/:review_id/comments", () => {
     expect(msg).toBe("ID does not exist.");
   });
 });
+
+describe("POST /api/reviews/:review_id/comments", () => {
+  it("201: returns the new comment", async () => {
+    const {
+      body: { comment },
+    } = await request(app)
+      .post("/api/reviews/2/comments")
+      .send({ username: "mallionaire", body: "This is a new comment." })
+      .expect(201);
+    expect(comment).toBeInstanceOf(Object);
+    expect(comment.body).toBe("This is a new comment.");
+  });
+  it("201: object contains comment_id, author, review_id, votes, created_at, and body keys", async () => {
+    const {
+      body: { comment },
+    } = await request(app)
+      .post("/api/reviews/2/comments")
+      .send({ username: "mallionaire", body: "This is a new comment." })
+      .expect(201);
+    expect(comment).toEqual(
+      expect.objectContaining({
+        comment_id: expect.any(Number),
+        author: expect.any(String),
+        review_id: expect.any(Number),
+        votes: expect.any(Number),
+        created_at: expect.any(String),
+        body: expect.any(String),
+      })
+    );
+  });
+  it("400: returns 'Bad request. Invalid ID' when id is in the wrong data type", async () => {
+    const {
+      body: { msg },
+    } = await request(app)
+      .post("/api/reviews/bananas/comments")
+      .send({ username: "mallionaire", body: "This is a new comment." })
+      .expect(400);
+    expect(msg).toBe("Bad request. Invalid ID.");
+  });
+  it("400: returns 'Bad request. Invalid username' when username is in the wrong data type", async () => {
+    const {
+      body: { msg },
+    } = await request(app)
+      .post("/api/reviews/2/comments")
+      .send({ username: 123, body: "This is a new comment." })
+      .expect(400);
+    expect(msg).toBe("Bad request. Invalid username.");
+  });
+  it("404: returns a page not found when ID does not exist", async () => {
+    const {
+      body: { msg },
+    } = await request(app)
+      .post("/api/reviews/100/comments")
+      .send({ username: "mallionaire", body: "This is a new comment." })
+      .expect(404);
+    expect(msg).toBe("ID does not exist.");
+  });
+  it("404: returns a page not found when username does not exist", async () => {
+    const {
+      body: { msg },
+    } = await request(app)
+      .post("/api/reviews/2/comments")
+      .send({ username: "rick astley", body: "This is a new comment." })
+      .expect(404);
+    expect(msg).toBe("User does not exist.");
+  });
+});

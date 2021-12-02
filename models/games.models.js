@@ -1,5 +1,5 @@
 const db = require("../db/connection");
-const { lastIndexOf } = require("../db/data/test-data/categories");
+const format = require("pg-format");
 
 exports.selectCategories = () => {
   return db.query("SELECT * FROM categories").then(({ rows }) => {
@@ -92,5 +92,21 @@ exports.selectCommentsByReviewId = (id) => {
   };
   return db.query(query).then(({ rows }) => {
     return { comments: rows };
+  });
+};
+
+exports.insertComment = (id, comment) => {
+  const { username, body } = comment;
+  const query = format(
+    `
+  INSERT INTO comments
+  (author, review_id, body)
+  VALUES
+  %L
+  RETURNING*;`,
+    [[username, id, body]]
+  );
+  return db.query(query).then(({ rows }) => {
+    return { comment: rows[0] };
   });
 };

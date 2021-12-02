@@ -4,8 +4,9 @@ const {
   alterVotesById,
   selectReviews,
   selectCommentsByReviewId,
+  insertComment,
 } = require("../models/games.models");
-const { checkIfIdExists } = require("../db/utils");
+const { checkIfIdExists, checkIfUserNameExists } = require("../db/utils");
 const { lastIndexOf } = require("../db/data/test-data/categories");
 
 exports.getCategories = (req, res, next) => {
@@ -65,6 +66,23 @@ exports.getCommentsByReviewId = (req, res, next) => {
   ])
     .then((response) => {
       res.status(200).send(response[0]);
+    })
+    .catch(next);
+};
+
+exports.postComment = (req, res, next) => {
+  const { body } = req;
+  const { review_id } = req.params;
+
+  return Promise.all([
+    checkIfIdExists("review_id", review_id, "reviews"),
+    checkIfUserNameExists("username", body.username, "users"),
+  ])
+    .then(() => {
+      return insertComment(review_id, body);
+    })
+    .then((response) => {
+      res.status(201).send(response);
     })
     .catch(next);
 };
