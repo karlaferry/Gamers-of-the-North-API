@@ -84,3 +84,13 @@ exports.selectReviews = ({ criteria, order, category }) => {
     });
   }
 };
+
+exports.selectCommentsByReviewId = (id) => {
+  const query = {
+    text: `SELECT * FROM comments WHERE review_id = $1;`,
+    values: [id],
+  };
+  return db.query(query).then(({ rows }) => {
+    return { comments: rows };
+  });
+};

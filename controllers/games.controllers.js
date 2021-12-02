@@ -3,6 +3,7 @@ const {
   selectReviewById,
   alterVotesById,
   selectReviews,
+  selectCommentsByReviewId,
 } = require("../models/games.models");
 const { checkIfIdExists } = require("../db/utils");
 const { lastIndexOf } = require("../db/data/test-data/categories");
@@ -52,6 +53,18 @@ exports.getReviews = (req, res, next) => {
   selectReviews(queries)
     .then((response) => {
       res.status(200).send(response);
+    })
+    .catch(next);
+};
+
+exports.getCommentsByReviewId = (req, res, next) => {
+  const { review_id } = req.params;
+  return Promise.all([
+    selectCommentsByReviewId(review_id),
+    checkIfIdExists("review_id", review_id, "reviews"),
+  ])
+    .then((response) => {
+      res.status(200).send(response[0]);
     })
     .catch(next);
 };

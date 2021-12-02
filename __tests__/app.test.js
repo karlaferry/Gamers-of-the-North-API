@@ -255,3 +255,41 @@ describe("GET /api/reviews", () => {
     });
   });
 });
+
+describe("GET /api/reviews/:review_id/comments", () => {
+  it("200: returns an array of comments", async () => {
+    const {
+      body: { comments },
+    } = await request(app).get("/api/reviews/2/comments").expect(200);
+    expect(comments).toBeInstanceOf(Array);
+  });
+  it("200: objects in array contain comment_id, votes, created_at, author, and body", async () => {
+    const {
+      body: { comments },
+    } = await request(app).get("/api/reviews/2/comments").expect(200);
+    expect(comments).toHaveLength(3);
+    comments.forEach((comment) => {
+      expect(comment).toEqual(
+        expect.objectContaining({
+          comment_id: expect.any(Number),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+          author: expect.any(String),
+          body: expect.any(String),
+        })
+      );
+    });
+  });
+  it("400: returns 'Bad request. Invalid ID' when id is in the wrong data type", async () => {
+    const {
+      body: { msg },
+    } = await request(app).get("/api/reviews/bananas/comments").expect(400);
+    expect(msg).toBe("Bad request. Invalid ID.");
+  });
+  it("404: returns 'ID does not exist.' when id doesn't exist", async () => {
+    const {
+      body: { msg },
+    } = await request(app).get("/api/reviews/100/comments").expect(404);
+    expect(msg).toBe("ID does not exist.");
+  });
+});
