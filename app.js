@@ -8,9 +8,6 @@ const app = express();
 app.use(express.json());
 
 // ROUTER
-app.use("/", (req, res, next) => {
-  res.status(200).send({ msg: "Hello world!" });
-});
 app.use("/api", apiRouter);
 
 // ERROR HANDLING
