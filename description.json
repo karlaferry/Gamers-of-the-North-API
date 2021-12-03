@@ -50,7 +50,7 @@
     }
   },
   "PATCH /api/reviews/:review_id": {
-    "description": "patches a single review by review_id",
+    "description": "patches a single review vote by review_id",
     "queries": [],
     "exampleResponse": {
       "review": {
