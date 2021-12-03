@@ -9,6 +9,7 @@ const {
   fetchDescription,
   selectUsers,
   selectUserByUsername,
+  alterVotesCommentById,
 } = require("../models/games.models");
 const { checkIfIdExists, checkIfUserNameExists } = require("../db/utils");
 
@@ -130,6 +131,19 @@ exports.getUserByUsername = (req, res, next) => {
     })
     .then((response) => {
       res.status(200).send(response);
+    })
+    .catch(next);
+};
+
+exports.updateCommentVotesById = (req, res, next) => {
+  const { comment_id } = req.params;
+  const { body } = req;
+  return Promise.all([
+    alterVotesCommentById(comment_id, body),
+    checkIfIdExists("comment_id", comment_id, "comments"),
+  ])
+    .then((response) => {
+      res.status(200).send(response[0]);
     })
     .catch(next);
 };
