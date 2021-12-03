@@ -123,3 +123,23 @@ exports.removeComment = (id) => {
 exports.fetchDescription = () => {
   return Promise.resolve(description);
 };
+
+exports.selectUsers = ({ criteria, order }) => {
+  if (!["username"].includes(criteria)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request. Invalid criteria.",
+    });
+  } else if (!["ASC", "DESC", "asc", "desc"].includes(order)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request. Invalid order.",
+    });
+  } else {
+    return db
+      .query(`SELECT username FROM users ORDER BY ${criteria} ${order};`)
+      .then(({ rows }) => {
+        return { users: rows };
+      });
+  }
+};

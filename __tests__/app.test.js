@@ -389,3 +389,32 @@ describe("GET /api", () => {
     expect(body).toBeInstanceOf(Object);
   });
 });
+
+describe("GET /api/users", () => {
+  it("200: returns an array of all user objects with property of username only", async () => {
+    const {
+      body: { users },
+    } = await request(app).get("/api/users").expect(200);
+    expect(users).toBeInstanceOf(Array);
+    expect(users).toHaveLength(4);
+    users.forEach((user) => {
+      expect(user).toEqual(
+        expect.objectContaining({
+          username: expect.any(String),
+        })
+      );
+    });
+  });
+  describe("QUERY", () => {
+    it("200: returns an array of objects sorted by username in ascending order by default", async () => {
+      const {
+        body: { users },
+      } = await request(app).get("/api/users").expect(200);
+      expect(users).toBeSortedBy("username", { descending: false });
+    });
+    it("404: returns a page not found error when path is misspelt", async () => {
+      const { statusCode } = await request(app).get("/api/userz").expect(404);
+      expect(statusCode).toBe(404);
+    });
+  });
+});

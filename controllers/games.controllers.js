@@ -7,6 +7,7 @@ const {
   insertComment,
   removeComment,
   fetchDescription,
+  selectUsers,
 } = require("../models/games.models");
 const { checkIfIdExists, checkIfUserNameExists } = require("../db/utils");
 
@@ -102,6 +103,18 @@ exports.deleteComment = (req, res, next) => {
 
 exports.getDescription = (req, res, next) => {
   fetchDescription()
+    .then((response) => {
+      res.status(200).send(response);
+    })
+    .catch(next);
+};
+
+exports.getUsers = (req, res, next) => {
+  const queries = {};
+  queries.criteria = req.query.sort_by || "username";
+  queries.order = req.query.order || "ASC";
+
+  selectUsers(queries)
     .then((response) => {
       res.status(200).send(response);
     })
