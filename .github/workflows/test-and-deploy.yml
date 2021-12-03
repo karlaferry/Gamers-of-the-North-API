@@ -1,0 +1,58 @@
+name: Test & Deploy
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  # JOB 1: Greetings
+  greetings:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Greetings
+        run: echo 'Hello there!'
+
+  #  JOB 2: Testing
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      # CLONE REPO
+      - name: Checkout
+        uses: actions/checkout@v2.4.0
+
+      # INSTALL NODE
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 15
+
+      # INSTALL POSTGRESQL
+      - name: Setup PostgreSQL
+        uses: Harmon758/postgresql-action@v1.0.0
+        with:
+          postgresql db: "my_db"
+          postgresql user: "test_user"
+          postgresql password: "test_password"
+
+      # INSTALL DEPENDENCIES
+      - name: Install dependencies
+        run: npm install
+
+      # RUN TESTS
+      - name: Run tests
+        run: PGDATABASE=my_db PGUSER=test_user PGPASSWORD=test_password npm t
+
+  # JOB 3: DEPLOYING
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Deploy to Heroku
+        uses: AkhileshNS/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: ${{secrets.HEROKU_APP_NAME}}
+          heroku_email: ${{secrets.HEROKU_EMAIL_ADDRESS}}
