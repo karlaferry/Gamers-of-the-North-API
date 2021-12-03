@@ -526,3 +526,40 @@ describe("PATCH /api/comments/:comment_id", () => {
     });
   });
 });
+
+describe("GET /api/comments", () => {
+  it("200: returns an array of all comment objects with comment_id, body, votes, author, review_id, and created_at properties", async () => {
+    const {
+      body: { comments },
+    } = await request(app).get("/api/comments").expect(200);
+    expect(comments).toBeInstanceOf(Array);
+    expect(comments).toHaveLength(6);
+    comments.forEach((comment) => {
+      expect(comment).toEqual(
+        expect.objectContaining({
+          comment_id: expect.any(Number),
+          body: expect.any(String),
+          votes: expect.any(Number),
+          author: expect.any(String),
+          review_id: expect.any(Number),
+          created_at: expect.any(String),
+        })
+      );
+    });
+  });
+  describe("QUERY", () => {
+    it("200: returns an array of objects sorted by created_at in descending order by default", async () => {
+      const {
+        body: { comments },
+      } = await request(app).get("/api/comments").expect(200);
+      console.log(comments);
+      expect(comments).toBeSortedBy("created_at", { descending: true });
+    });
+    it("404: returns a page not found error when path is misspelt", async () => {
+      const { statusCode } = await request(app)
+        .get("/api/commentz")
+        .expect(404);
+      expect(statusCode).toBe(404);
+    });
+  });
+});

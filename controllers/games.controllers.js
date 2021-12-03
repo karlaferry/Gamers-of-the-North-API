@@ -10,6 +10,7 @@ const {
   selectUsers,
   selectUserByUsername,
   alterVotesCommentById,
+  selectComments,
 } = require("../models/games.models");
 const { checkIfIdExists, checkIfUserNameExists } = require("../db/utils");
 
@@ -144,6 +145,18 @@ exports.updateCommentVotesById = (req, res, next) => {
   ])
     .then((response) => {
       res.status(200).send(response[0]);
+    })
+    .catch(next);
+};
+
+exports.selectComments = (req, res, next) => {
+  const queries = {};
+  queries.criteria = req.query.sort_by || "created_at";
+  queries.order = req.query.order || "DESC";
+
+  selectComments(queries)
+    .then((response) => {
+      res.status(200).send(response);
     })
     .catch(next);
 };

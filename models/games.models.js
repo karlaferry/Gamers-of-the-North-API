@@ -176,3 +176,32 @@ exports.alterVotesCommentById = (id, voteBody) => {
     };
   });
 };
+
+exports.selectComments = ({ criteria, order }) => {
+  if (
+    ![
+      "comment_id",
+      "body",
+      "votes",
+      "author",
+      "review_id",
+      "created_at",
+    ].includes(criteria)
+  ) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request. Invalid criteria.",
+    });
+  } else if (!["ASC", "DESC", "asc", "desc"].includes(order)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request. Invalid order.",
+    });
+  } else {
+    return db
+      .query(`SELECT * FROM comments ORDER BY ${criteria} ${order};`)
+      .then(({ rows }) => {
+        return { comments: rows };
+      });
+  }
+};
