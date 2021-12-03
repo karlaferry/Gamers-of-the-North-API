@@ -117,5 +117,17 @@
     "description": "allows client to delete a comment",
     "queries": [],
     "exampleResponse": ""
+  },
+  "GET /api/users": {
+    "description": "serves an array of all users with only the username property",
+    "queries": ["order"],
+    "exampleResponse": {
+      "users": [
+        { "username": "bainesface" },
+        { "username": "dav3rid" },
+        { "username": "mallionaire" },
+        { "username": "philippaclaire9" }
+      ]
+    }
   }
 }
