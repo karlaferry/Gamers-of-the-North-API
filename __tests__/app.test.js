@@ -552,7 +552,6 @@ describe("GET /api/comments", () => {
       const {
         body: { comments },
       } = await request(app).get("/api/comments").expect(200);
-      console.log(comments);
       expect(comments).toBeSortedBy("created_at", { descending: true });
     });
     it("404: returns a page not found error when path is misspelt", async () => {
