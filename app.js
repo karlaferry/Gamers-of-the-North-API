@@ -13,7 +13,7 @@ app.use(express.json());
 
 // ROUTER
 app.get("/", (req, res, next) => {
-  res.status(200).send({ msg: "Hello from CICD!" });
+  res.status(200).send({ msg: "Hello from CICD!🎉" });
 });
 app.use("/api", apiRouter);
 
