@@ -7,10 +7,10 @@ on:
 jobs:
   # JOB 1: Greetings
   greetings:
+    name: Greetings
     runs-on: ubuntu-latest
     steps:
-      - name: Greetings
-        run: echo 'Hello there!'
+      - run: echo 'Hello there!'
 
   #  JOB 2: Testing
   test:
@@ -45,6 +45,7 @@ jobs:
 
   # JOB 3: DEPLOYING
   deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     needs: test
     steps:
