@@ -143,3 +143,13 @@ exports.selectUsers = ({ criteria, order }) => {
       });
   }
 };
+
+exports.selectUserByUsername = (username) => {
+  const query = {
+    text: `SELECT * FROM users WHERE username = $1;`,
+    values: [username],
+  };
+  return db.query(query).then(({ rows }) => {
+    return { user: rows[0] };
+  });
+};

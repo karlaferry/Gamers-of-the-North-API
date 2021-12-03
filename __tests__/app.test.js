@@ -418,3 +418,32 @@ describe("GET /api/users", () => {
     });
   });
 });
+
+describe("GET /api/users/:username", () => {
+  it("200: returns an object with a user property with a single user object", async () => {
+    const {
+      body: { user },
+    } = await request(app).get("/api/users/bainesface").expect(200);
+    console.log(user);
+    expect(user).toBeInstanceOf(Object);
+    expect(user).toEqual(
+      expect.objectContaining({
+        username: expect.any(String),
+        avatar_url: expect.any(String),
+        name: expect.any(String),
+      })
+    );
+  });
+  it("400: returns 'Bad request. Invalid username' when username is in the wrong data type", async () => {
+    const {
+      body: { msg },
+    } = await request(app).get("/api/users/123").expect(400);
+    expect(msg).toBe("Bad request. Invalid username.");
+  });
+  it("404: returns a page not found when user does not exist", async () => {
+    const {
+      body: { msg },
+    } = await request(app).get("/api/users/rickastley").expect(404);
+    expect(msg).toBe("User does not exist.");
+  });
+});

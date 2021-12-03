@@ -8,6 +8,7 @@ const {
   removeComment,
   fetchDescription,
   selectUsers,
+  selectUserByUsername,
 } = require("../models/games.models");
 const { checkIfIdExists, checkIfUserNameExists } = require("../db/utils");
 
@@ -115,6 +116,18 @@ exports.getUsers = (req, res, next) => {
   queries.order = req.query.order || "ASC";
 
   selectUsers(queries)
+    .then((response) => {
+      res.status(200).send(response);
+    })
+    .catch(next);
+};
+
+exports.getUserByUsername = (req, res, next) => {
+  const { username } = req.params;
+  return checkIfUserNameExists("username", username, "users")
+    .then(() => {
+      return selectUserByUsername(username);
+    })
     .then((response) => {
       res.status(200).send(response);
     })
