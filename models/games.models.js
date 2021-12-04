@@ -23,21 +23,19 @@ exports.selectReviewById = (id) => {
 };
 
 exports.alterVotesById = (id, voteBody) => {
-  if (!voteBody.hasOwnProperty("inc_votes")) {
-    return Promise.reject({
-      status: 400,
-      msg: "Bad request. Invalid post body.",
-    });
-  } else if (isNaN(voteBody.inc_votes)) {
+  if (voteBody.hasOwnProperty("inc_votes") && isNaN(voteBody.inc_votes)) {
     return Promise.reject({
       status: 400,
       msg: "Bad request. Invalid vote.",
     });
   }
-  const query = {
-    text: `UPDATE reviews SET votes = (votes + ${voteBody.inc_votes}) WHERE review_id = $1 RETURNING*;`,
-    values: [id],
-  };
+  const query = {};
+  if (!voteBody.hasOwnProperty("inc_votes")) {
+    query.text = `SELECT * FROM reviews WHERE review_id = ${id}`;
+  } else {
+    query.text = `UPDATE reviews SET votes = (votes + ${voteBody.inc_votes}) WHERE review_id = $1 RETURNING*;`;
+    query.values = [id];
+  }
   return db.query(query).then(({ rows }) => {
     return {
       review: rows[0],
