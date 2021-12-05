@@ -23,13 +23,8 @@ describe("GET /api/categories", () => {
     const {
       body: { categories },
     } = await request(app).get("/api/categories").expect(200);
-    expect(categories).toHaveLength(4);
     expect(categories).toBeInstanceOf(Array);
-  });
-  it("200: objects in array contains slug and description", async () => {
-    const {
-      body: { categories },
-    } = await request(app).get("/api/categories").expect(200);
+    expect(categories).toHaveLength(4);
     categories.forEach((category) => {
       expect(category).toEqual(
         expect.objectContaining({
@@ -182,16 +177,11 @@ describe("DELETE /api/comments/:comment_id", () => {
 });
 
 describe("GET /api/reviews", () => {
-  it('200: returns an object with "reviews" key and value of array', async () => {
+  it('200: returns an object with "reviews" key with array of objects with required keys', async () => {
     const {
       body: { reviews },
     } = await request(app).get("/api/reviews").expect(200);
     expect(reviews).toBeInstanceOf(Array);
-  });
-  it("200: object in array contains owner, title, review_id, review_body, designer, review_img_url, category, created_at, votes, comment_count", async () => {
-    const {
-      body: { reviews },
-    } = await request(app).get("/api/reviews").expect(200);
     expect(reviews).toHaveLength(13);
     reviews.forEach((review) => {
       expect(review).toEqual(
@@ -281,16 +271,11 @@ describe("GET /api/reviews", () => {
 });
 
 describe("GET /api/reviews/:review_id", () => {
-  it('200: returns an object with "review" key and value of object', async () => {
+  it('200: returns an object with "review" key and value of object with required keys', async () => {
     const {
       body: { review },
     } = await request(app).get("/api/reviews/2").expect(200);
     expect(review).toBeInstanceOf(Object);
-  });
-  it("200: object contains owner, title, review_id, review_body, designer, review_img_url, category, created_at, votes, comment_count", async () => {
-    const {
-      body: { review },
-    } = await request(app).get("/api/reviews/2").expect(200);
     expect(review).toEqual(
       expect.objectContaining({
         owner: expect.any(String),
@@ -356,10 +341,7 @@ describe("PATCH /api/reviews/:review_id", () => {
   it("200: returns the unaltered review if 'inc_votes' key does not exist", async () => {
     const {
       body: { review },
-    } = await request(app)
-      .patch("/api/reviews/2")
-      .send({ inc_votez: 1 })
-      .expect(200);
+    } = await request(app).patch("/api/reviews/2").send().expect(200);
     const { rows } = await db.query(
       "SELECT * FROM reviews WHERE review_id = 2"
     );
@@ -450,14 +432,6 @@ describe("POST /api/reviews/:review_id/comments", () => {
       .expect(201);
     expect(comment).toBeInstanceOf(Object);
     expect(comment.body).toBe("This is a new comment.");
-  });
-  it("201: object contains comment_id, author, review_id, votes, created_at, and body keys", async () => {
-    const {
-      body: { comment },
-    } = await request(app)
-      .post("/api/reviews/2/comments")
-      .send({ username: "mallionaire", body: "This is a new comment." })
-      .expect(201);
     expect(comment).toEqual(
       expect.objectContaining({
         comment_id: expect.any(Number),
@@ -468,6 +442,50 @@ describe("POST /api/reviews/:review_id/comments", () => {
         body: expect.any(String),
       })
     );
+  });
+  it("201: ignores unnecessary properties", async () => {
+    const {
+      body: { comment },
+    } = await request(app)
+      .post("/api/reviews/2/comments")
+      .send({
+        username: "mallionaire",
+        body: "This is a new comment.",
+        age: 22,
+      })
+      .expect(201);
+    expect(comment).toBeInstanceOf(Object);
+    expect(comment.body).toBe("This is a new comment.");
+    expect(comment).toEqual(
+      expect.objectContaining({
+        comment_id: expect.any(Number),
+        author: expect.any(String),
+        review_id: expect.any(Number),
+        votes: expect.any(Number),
+        created_at: expect.any(String),
+        body: expect.any(String),
+      })
+    );
+  });
+  it("400: returns 'Bad request. Incomplete post body.' when post body is incomplete", async () => {
+    const {
+      body: { msg: noUser },
+    } = await request(app)
+      .post("/api/reviews/2/comments")
+      .send({ username: "mallionaire" })
+      .expect(400);
+    expect(noUser).toBe("Bad request. Incomplete post body.");
+    const {
+      body: { msg: noPostBody },
+    } = await request(app)
+      .post("/api/reviews/2/comments")
+      .send({ body: "This is a new comment." })
+      .expect(400);
+    expect(noPostBody).toBe("Bad request. Incomplete post body.");
+    const {
+      body: { msg: noSend },
+    } = await request(app).post("/api/reviews/2/comments").send().expect(400);
+    expect(noSend).toBe("Bad request. Incomplete post body.");
   });
   it("400: returns 'Bad request. Invalid ID' when id is in the wrong data type", async () => {
     const {

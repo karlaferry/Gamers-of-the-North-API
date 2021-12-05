@@ -99,6 +99,12 @@ exports.selectCommentsByReviewId = (id) => {
 
 exports.insertComment = (id, comment) => {
   const { username, body } = comment;
+  if (body === undefined) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request. Incomplete post body.",
+    });
+  }
   const query = format(
     `
   INSERT INTO comments

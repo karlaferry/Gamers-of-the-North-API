@@ -21,6 +21,12 @@ exports.checkIfIdExists = async (paramKey, id, table) => {
 };
 
 exports.checkIfUserNameExists = async (paramKey, username, table) => {
+  if (username === undefined) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request. Incomplete post body.",
+    });
+  }
   if (!isNaN(username)) {
     return Promise.reject({
       status: 400,
