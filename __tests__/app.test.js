@@ -262,6 +262,12 @@ describe("GET /api/reviews", () => {
     } = await request(app).get("/api/reviews?order=bananas").expect(400);
     expect(msg).toBe("Bad request. Invalid order.");
   });
+  it("400: returns a bad request when category is invalid", async () => {
+    const {
+      body: { msg },
+    } = await request(app).get("/api/reviews?category=123").expect(400);
+    expect(msg).toBe("Bad request. Invalid category.");
+  });
   it("404: returns a page not found error when category does not exist", async () => {
     const {
       body: { msg },

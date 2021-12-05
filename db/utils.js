@@ -43,7 +43,12 @@ exports.checkIfUserNameExists = async (paramKey, username, table) => {
 exports.checkIfCategoryExists = async (category) => {
   const { rows } = await db.query("SELECT * FROM categories;");
   const categories = rows.map((item) => item.slug);
-  if (!categories.includes(category)) {
+  if (!isNaN(category)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request. Invalid category.",
+    });
+  } else if (!categories.includes(category)) {
     return Promise.reject({
       status: 404,
       msg: "Category does not exist.",
