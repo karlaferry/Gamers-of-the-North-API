@@ -108,6 +108,18 @@ describe("PATCH /api/comments/:comment_id", () => {
     expect(comment).toBeInstanceOf(Object);
     expect(comment.votes).toBe(originalVoteCount - 10);
   });
+  it("200: returns the unaltered review if 'inc_votes' key does not exist", async () => {
+    const {
+      body: { comment },
+    } = await request(app)
+      .patch("/api/comments/2")
+      .send({ inc_votez: 1 })
+      .expect(200);
+    const { rows } = await db.query(
+      "SELECT * FROM comments WHERE comment_id = 2"
+    );
+    expect(comment.votes).toBe(rows[0].votes);
+  });
   it("400: returns 'Bad request. Invalid ID' when id is in the wrong data type", async () => {
     const {
       body: { msg },
@@ -116,15 +128,6 @@ describe("PATCH /api/comments/:comment_id", () => {
       .send({ inc_votes: 1 })
       .expect(400);
     expect(msg).toBe("Bad request. Invalid ID.");
-  });
-  it("400: returns 'Bad request. Invalid post body.' when post body object key is invalid", async () => {
-    const {
-      body: { msg },
-    } = await request(app)
-      .patch("/api/comments/2")
-      .send({ inc_votez: 1 })
-      .expect(400);
-    expect(msg).toBe("Bad request. Invalid post body.");
   });
   it("400: returns 'Bad request. Invalid vote.' when post body object value is not a number ", async () => {
     const {
@@ -207,10 +210,6 @@ describe("GET /api/reviews", () => {
       );
     });
   });
-  it("404: returns a page not found error when path is misspelt", async () => {
-    const { statusCode } = await request(app).get("/api/reviewz").expect(404);
-    expect(statusCode).toBe(404);
-  });
   it("200: returns an array of objects sorted by date and ordered by descending by default", async () => {
     const {
       body: { reviews },
@@ -243,6 +242,14 @@ describe("GET /api/reviews", () => {
     } = await request(app).get("/api/reviews?category=euro%20game").expect(200);
     expect(reviews).toHaveLength(1);
   });
+  it("200: returns an empty array if category exists but no reviews", async () => {
+    const {
+      body: { reviews },
+    } = await request(app)
+      .get("/api/reviews?category=children%27s%20games")
+      .expect(200);
+    expect(reviews).toHaveLength(0);
+  });
   it("400: returns a bad request when sort_by criteria is invalid", async () => {
     const {
       body: { msg },
@@ -260,6 +267,10 @@ describe("GET /api/reviews", () => {
       body: { msg },
     } = await request(app).get("/api/reviews?category=bananas").expect(404);
     expect(msg).toBe("Category does not exist.");
+  });
+  it("404: returns a page not found error when path is misspelt", async () => {
+    const { statusCode } = await request(app).get("/api/reviewz").expect(404);
+    expect(statusCode).toBe(404);
   });
 });
 

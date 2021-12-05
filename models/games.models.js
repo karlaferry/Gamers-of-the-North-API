@@ -1,6 +1,7 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 const description = require("../description.json");
+const { checkIfCategoryExists } = require("../db/utils");
 
 exports.selectCategories = () => {
   return db.query("SELECT * FROM categories").then(({ rows }) => {
@@ -22,7 +23,7 @@ exports.selectReviewById = (id) => {
   });
 };
 
-exports.alterVotesById = (id, voteBody) => {
+exports.alterReviewVotesById = (id, voteBody) => {
   if (voteBody.hasOwnProperty("inc_votes") && isNaN(voteBody.inc_votes)) {
     return Promise.reject({
       status: 400,
@@ -67,22 +68,67 @@ exports.selectReviews = ({ criteria, order, category }) => {
   } else {
     const query = {};
     if (category !== undefined) {
-      query.text = `SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id WHERE category = $1 GROUP BY reviews.review_id ORDER BY ${criteria} ${order};`;
-      query.values = [category];
-    } else {
-      query.text = `SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id GROUP BY reviews.review_id ORDER BY ${criteria} ${order};`;
-    }
-    return db.query(query).then(({ rows }) => {
-      if (rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          msg: "Category does not exist.",
+      return checkIfCategoryExists(category).then(() => {
+        query.text = `SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id WHERE category = $1 GROUP BY reviews.review_id ORDER BY ${criteria} ${order};`;
+        query.values = [category];
+        return db.query(query).then(({ rows }) => {
+          return { reviews: rows };
         });
-      }
-      return { reviews: rows };
-    });
+      });
+    } else {
+      return db
+        .query(
+          `SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id GROUP BY reviews.review_id ORDER BY ${criteria} ${order};`
+        )
+        .then(({ rows }) => {
+          return { reviews: rows };
+        });
+    }
   }
 };
+
+// exports.selectReviews = ({ criteria, order, category }) => {
+//   if (
+//     ![
+//       "owner",
+//       "title",
+//       "review_id",
+//       "category",
+//       "created_at",
+//       "votes",
+//       "comment_count",
+//     ].includes(criteria)
+//   ) {
+//     return Promise.reject({
+//       status: 400,
+//       msg: "Bad request. Invalid criteria.",
+//     });
+//   } else if (!["ASC", "DESC", "asc", "desc"].includes(order)) {
+//     return Promise.reject({
+//       status: 400,
+//       msg: "Bad request. Invalid order.",
+//     });
+//   } else {
+//     const query = {};
+//     if (category !== undefined) {
+//       return checkIfCategoryExists(category).then(() => {
+//         query.text = `SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id WHERE category = $1 GROUP BY reviews.review_id ORDER BY ${criteria} ${order};`;
+//         query.values = [category];
+//         return db.query(query).then(({ rows }) => {
+//           return { reviews: rows };
+//         });
+//       });
+//     } else {
+//       return db
+//         .query(
+//           `SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id GROUP BY reviews.review_id ORDER BY ${criteria} ${order};`
+//         )
+//         .then(({ rows }) => {
+//           return { reviews: rows };
+//         });
+//     }
+//   }
+// };
 
 exports.selectCommentsByReviewId = (id) => {
   const query = {
@@ -152,22 +198,20 @@ exports.selectUserByUsername = (username) => {
   });
 };
 
-exports.alterVotesCommentById = (id, voteBody) => {
-  if (!voteBody.hasOwnProperty("inc_votes")) {
-    return Promise.reject({
-      status: 400,
-      msg: "Bad request. Invalid post body.",
-    });
-  } else if (isNaN(voteBody.inc_votes)) {
+exports.alterCommentVotesById = (id, voteBody) => {
+  if (voteBody.hasOwnProperty("inc_votes") && isNaN(voteBody.inc_votes)) {
     return Promise.reject({
       status: 400,
       msg: "Bad request. Invalid vote.",
     });
   }
-  const query = {
-    text: `UPDATE comments SET votes = (votes + ${voteBody.inc_votes}) WHERE comment_id = $1 RETURNING*;`,
-    values: [id],
-  };
+  const query = {};
+  if (!voteBody.hasOwnProperty("inc_votes")) {
+    query.text = `SELECT * FROM comments WHERE comment_id = ${id}`;
+  } else {
+    query.text = `UPDATE comments SET votes = (votes + ${voteBody.inc_votes}) WHERE comment_id = $1 RETURNING*;`;
+    query.values = [id];
+  }
   return db.query(query).then(({ rows }) => {
     return {
       comment: rows[0],

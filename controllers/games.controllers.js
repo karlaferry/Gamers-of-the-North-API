@@ -1,7 +1,7 @@
 const {
   selectCategories,
   selectReviewById,
-  alterVotesById,
+  alterReviewVotesById,
   selectReviews,
   selectCommentsByReviewId,
   insertComment,
@@ -9,7 +9,7 @@ const {
   fetchDescription,
   selectUsers,
   selectUserByUsername,
-  alterVotesCommentById,
+  alterCommentVotesById,
   selectComments,
 } = require("../models/games.models");
 const { checkIfIdExists, checkIfUserNameExists } = require("../db/utils");
@@ -34,11 +34,11 @@ exports.getReviewById = (req, res, next) => {
     .catch(next);
 };
 
-exports.updateVotesById = (req, res, next) => {
+exports.updateReviewVotesById = (req, res, next) => {
   const { review_id } = req.params;
   const { body } = req;
   return Promise.all([
-    alterVotesById(review_id, body),
+    alterReviewVotesById(review_id, body),
     checkIfIdExists("review_id", review_id, "reviews"),
   ])
     .then((response) => {
@@ -55,7 +55,6 @@ exports.getReviews = (req, res, next) => {
   if (req.query.hasOwnProperty("category")) {
     queries.category = req.query.category;
   }
-
   selectReviews(queries)
     .then((response) => {
       res.status(200).send(response);
@@ -140,7 +139,7 @@ exports.updateCommentVotesById = (req, res, next) => {
   const { comment_id } = req.params;
   const { body } = req;
   return Promise.all([
-    alterVotesCommentById(comment_id, body),
+    alterCommentVotesById(comment_id, body),
     checkIfIdExists("comment_id", comment_id, "comments"),
   ])
     .then((response) => {
