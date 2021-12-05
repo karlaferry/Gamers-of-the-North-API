@@ -87,49 +87,6 @@ exports.selectReviews = ({ criteria, order, category }) => {
   }
 };
 
-// exports.selectReviews = ({ criteria, order, category }) => {
-//   if (
-//     ![
-//       "owner",
-//       "title",
-//       "review_id",
-//       "category",
-//       "created_at",
-//       "votes",
-//       "comment_count",
-//     ].includes(criteria)
-//   ) {
-//     return Promise.reject({
-//       status: 400,
-//       msg: "Bad request. Invalid criteria.",
-//     });
-//   } else if (!["ASC", "DESC", "asc", "desc"].includes(order)) {
-//     return Promise.reject({
-//       status: 400,
-//       msg: "Bad request. Invalid order.",
-//     });
-//   } else {
-//     const query = {};
-//     if (category !== undefined) {
-//       return checkIfCategoryExists(category).then(() => {
-//         query.text = `SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id WHERE category = $1 GROUP BY reviews.review_id ORDER BY ${criteria} ${order};`;
-//         query.values = [category];
-//         return db.query(query).then(({ rows }) => {
-//           return { reviews: rows };
-//         });
-//       });
-//     } else {
-//       return db
-//         .query(
-//           `SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id GROUP BY reviews.review_id ORDER BY ${criteria} ${order};`
-//         )
-//         .then(({ rows }) => {
-//           return { reviews: rows };
-//         });
-//     }
-//   }
-// };
-
 exports.selectCommentsByReviewId = (id) => {
   const query = {
     text: `SELECT * FROM comments WHERE review_id = $1;`,

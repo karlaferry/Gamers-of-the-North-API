@@ -402,16 +402,11 @@ describe("PATCH /api/reviews/:review_id", () => {
 });
 
 describe("GET /api/reviews/:review_id/comments", () => {
-  it("200: returns an array of comments", async () => {
+  it("200: returns an array of comments with required object keys", async () => {
     const {
       body: { comments },
     } = await request(app).get("/api/reviews/2/comments").expect(200);
     expect(comments).toBeInstanceOf(Array);
-  });
-  it("200: objects in array contain comment_id, votes, created_at, author, and body", async () => {
-    const {
-      body: { comments },
-    } = await request(app).get("/api/reviews/2/comments").expect(200);
     expect(comments).toHaveLength(3);
     comments.forEach((comment) => {
       expect(comment).toEqual(
@@ -424,6 +419,12 @@ describe("GET /api/reviews/:review_id/comments", () => {
         })
       );
     });
+  });
+  it("200: returns an empty array of comments if review_id does not have comments", async () => {
+    const {
+      body: { comments },
+    } = await request(app).get("/api/reviews/9/comments").expect(200);
+    expect(comments).toHaveLength(0);
   });
   it("400: returns 'Bad request. Invalid ID' when id is in the wrong data type", async () => {
     const {
