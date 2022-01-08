@@ -211,23 +211,6 @@ exports.selectComments = ({ criteria, order }) => {
   }
 };
 
-// exports.alterReviewBodyById = (id, body) => {
-//   if (body.hasOwnProperty("review_body")) {
-//     const query = {
-//       text: `UPDATE reviews SET review_body = $1 WHERE review_id = ${id} RETURNING*;`,
-//       values: [body.review_body],
-//     };
-//     return db.query(query).then(({ rows }) => {
-//       return { review: rows[0] };
-//     });
-//   } else {
-//     return db
-//       .query(`SELECT * FROM reviews WHERE review_id = ${id};`)
-//       .then(({ rows }) => {
-//         return { review: rows[0] };
-//       });
-//   }
-// };
 exports.alterReviewBodyById = (id, body) => {
   const selectQuery = `SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count 
   FROM comments JOIN reviews ON reviews.review_id = comments.review_id 
@@ -253,7 +236,10 @@ exports.alterReviewBodyById = (id, body) => {
   }
 };
 
-// SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count
-//     FROM comments JOIN reviews ON reviews.review_id = comments.review_id
-//     WHERE reviews.review_id = $1
-//     GROUP BY reviews.review_id;`
+exports.selectCommentById = (id) => {
+  const query = `SELECT * FROM comments
+    WHERE comment_id = ${id};`;
+  return db.query(query).then(({ rows }) => {
+    return { comment: rows[0] };
+  });
+};

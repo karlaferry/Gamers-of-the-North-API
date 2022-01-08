@@ -12,6 +12,7 @@ const {
   alterCommentVotesById,
   selectComments,
   alterReviewBodyById,
+  selectCommentById,
 } = require("../models/games.models");
 const { checkIfIdExists, checkIfUserNameExists } = require("../db/utils");
 
@@ -170,6 +171,18 @@ exports.updateReviewBody = (req, res, next) => {
   ])
     .then((response) => {
       res.status(201).send(response[0]);
+    })
+    .catch(next);
+};
+
+exports.getCommentById = (req, res, next) => {
+  const { comment_id } = req.params;
+  return Promise.all([
+    selectCommentById(comment_id),
+    checkIfIdExists("comment_id", comment_id, "comments"),
+  ])
+    .then((response) => {
+      res.status(200).send(response[0]);
     })
     .catch(next);
 };
