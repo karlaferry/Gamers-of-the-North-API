@@ -74,6 +74,41 @@ describe("GET /api/comments", () => {
   });
 });
 
+describe("GET /api/comments/:comment_id", () => {
+  it('200: returns an object with "comment" key and value of object with required keys', async () => {
+    const {
+      body: { comment },
+    } = await request(app).get("/api/comments/1").expect(200);
+    expect(comment).toBeInstanceOf(Object);
+    expect(comment).toEqual(
+      expect.objectContaining({
+        comment_id: expect.any(Number),
+        author: expect.any(String),
+        review_id: expect.any(Number),
+        votes: expect.any(Number),
+        created_at: expect.any(String),
+        body: expect.any(String),
+      })
+    );
+  });
+  it("400: returns 'Bad request. Invalid ID.' when id is in the wrong data type", async () => {
+    const {
+      body: { msg },
+    } = await request(app).get("/api/reviews/banana").expect(400);
+    expect(msg).toBe("Bad request. Invalid ID.");
+  });
+  it("404: returns 'ID does not exist' when id doesn't exist", async () => {
+    const {
+      body: { msg },
+    } = await request(app).get("/api/reviews/55").expect(404);
+    expect(msg).toBe("ID does not exist.");
+  });
+  it("404: returns a page not found error when path is misspelt", async () => {
+    const { statusCode } = await request(app).get("/api/reviewz/2").expect(404);
+    expect(statusCode).toBe(404);
+  });
+});
+
 describe("PATCH /api/comments/:comment_id", () => {
   it("200: returns the updated comment with increased votes", async () => {
     const { rows } = await db.query(
@@ -150,6 +185,8 @@ describe("PATCH /api/comments/:comment_id", () => {
     expect(statusCode).toBe(404);
   });
 });
+
+describe("PATCH /api/comments/:comment_id/body", () => {});
 
 describe("DELETE /api/comments/:comment_id", () => {
   it("204: deletes the comment and returns no content", async () => {
