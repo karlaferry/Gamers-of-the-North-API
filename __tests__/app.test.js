@@ -338,7 +338,7 @@ describe("PATCH /api/reviews/:review_id", () => {
     expect(review).toBeInstanceOf(Object);
     expect(review.votes).toBe(originalVoteCount - 10);
   });
-  it("200: returns the unaltered review if 'inc_votes' key does not exist", async () => {
+  it("200: returns the unaltered review if body does not exist", async () => {
     const {
       body: { review },
     } = await request(app).patch("/api/reviews/2").send().expect(200);
