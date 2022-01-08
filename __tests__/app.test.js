@@ -391,6 +391,7 @@ describe("PATCH /api/reviews/:review_id/body", () => {
       .patch("/api/reviews/2/body")
       .send({ review_body: "New review body here." })
       .expect(201);
+    console.log(review);
     expect(review.review_body).toBe("New review body here.");
     expect(review).toEqual(
       expect.objectContaining({
@@ -403,6 +404,7 @@ describe("PATCH /api/reviews/:review_id/body", () => {
         category: expect.any(String),
         owner: expect.any(String),
         created_at: expect.any(String),
+        comment_count: expect.any(Number),
       })
     );
   });
@@ -423,6 +425,7 @@ describe("PATCH /api/reviews/:review_id/body", () => {
         category: expect.any(String),
         owner: expect.any(String),
         created_at: expect.any(String),
+        comment_count: expect.any(Number),
       })
     );
   });
