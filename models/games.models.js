@@ -210,3 +210,21 @@ exports.selectComments = ({ criteria, order }) => {
       });
   }
 };
+
+exports.alterReviewBodyById = (id, body) => {
+  if (body.hasOwnProperty("review_body")) {
+    const query = {
+      text: `UPDATE reviews SET review_body = $1 WHERE review_id = ${id} RETURNING*;`,
+      values: [body.review_body],
+    };
+    return db.query(query).then(({ rows }) => {
+      return { review: rows[0] };
+    });
+  } else {
+    return db
+      .query(`SELECT * FROM reviews WHERE review_id = ${id};`)
+      .then(({ rows }) => {
+        return { review: rows[0] };
+      });
+  }
+};

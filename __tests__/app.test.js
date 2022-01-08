@@ -383,6 +383,76 @@ describe("PATCH /api/reviews/:review_id", () => {
   });
 });
 
+describe("PATCH /api/reviews/:review_id/body", () => {
+  it("201: returns the updated review", async () => {
+    const {
+      body: { review },
+    } = await request(app)
+      .patch("/api/reviews/2/body")
+      .send({ review_body: "New review body here." })
+      .expect(201);
+    expect(review.review_body).toBe("New review body here.");
+    expect(review).toEqual(
+      expect.objectContaining({
+        review_id: expect.any(Number),
+        title: expect.any(String),
+        review_body: expect.any(String),
+        designer: expect.any(String),
+        review_img_url: expect.any(String),
+        votes: expect.any(Number),
+        category: expect.any(String),
+        owner: expect.any(String),
+        created_at: expect.any(String),
+      })
+    );
+  });
+  it("201: returns the unchanged review if patch body is empty", async () => {
+    const {
+      body: { review },
+    } = await request(app).patch("/api/reviews/2/body").send().expect(201);
+    const reviewBody = "Fiddly fun for all the family";
+    expect(review.review_body).toBe(reviewBody);
+    expect(review).toEqual(
+      expect.objectContaining({
+        review_id: expect.any(Number),
+        title: expect.any(String),
+        review_body: expect.any(String),
+        designer: expect.any(String),
+        review_img_url: expect.any(String),
+        votes: expect.any(Number),
+        category: expect.any(String),
+        owner: expect.any(String),
+        created_at: expect.any(String),
+      })
+    );
+  });
+  it("400: returns 'Bad request. Invalid ID.' when id is in the wrong data type", async () => {
+    const {
+      body: { msg },
+    } = await request(app)
+      .patch("/api/reviews/bananas/body")
+      .send({ review_body: "New review body here." })
+      .expect(400);
+    expect(msg).toBe("Bad request. Invalid ID.");
+  });
+  it("404: returns 'ID does not exist' when id doesn't exist", async () => {
+    const {
+      body: { msg },
+    } = await request(app)
+      .patch("/api/reviews/99999/body")
+      .send({ review_body: "New review body here." })
+      .expect(404);
+    expect(msg).toBe("ID does not exist.");
+  });
+  it("404: returns a page not found error when path is misspelt", async () => {
+    const { statusCode } = await request(app)
+      .patch("/api/reviews/2/bodyz")
+      .send({ review_body: "New review body here." })
+      .expect(404);
+    expect(statusCode).toBe(404);
+  });
+});
+
 describe("GET /api/reviews/:review_id/comments", () => {
   it("200: returns an array of comments with required object keys", async () => {
     const {
