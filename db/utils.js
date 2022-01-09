@@ -45,6 +45,31 @@ exports.checkIfUserNameExists = async (paramKey, username, table) => {
     }
   }
 };
+exports.checkIfNewUserExists = async (paramKey, username, table) => {
+  if (username === undefined) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request. Incomplete post body.",
+    });
+  }
+  if (!isNaN(username)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request. Invalid username.",
+    });
+  } else {
+    const { rows } = await db.query(
+      `SELECT * FROM ${table} WHERE ${paramKey} = $1;`,
+      [username.toLowerCase()]
+    );
+    if (rows.length > 0) {
+      return Promise.reject({
+        status: 400,
+        msg: "Username already taken.",
+      });
+    }
+  }
+};
 
 exports.checkIfCategoryExists = async (category) => {
   const { rows } = await db.query("SELECT * FROM categories;");

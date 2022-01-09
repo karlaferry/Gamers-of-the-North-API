@@ -14,8 +14,13 @@ const {
   alterReviewBodyById,
   selectCommentById,
   alterCommentBodyById,
+  postUser,
 } = require("../models/games.models");
-const { checkIfIdExists, checkIfUserNameExists } = require("../db/utils");
+const {
+  checkIfIdExists,
+  checkIfUserNameExists,
+  checkIfNewUserExists,
+} = require("../db/utils");
 
 exports.getCategories = (req, res, next) => {
   selectCategories()
@@ -197,6 +202,19 @@ exports.updateCommentBodyById = (req, res, next) => {
   ])
     .then((response) => {
       res.status(201).send(response[0]);
+    })
+    .catch(next);
+};
+
+exports.addUser = (req, res, next) => {
+  const { body } = req;
+
+  checkIfNewUserExists("username", body.username, "users")
+    .then(() => {
+      return postUser(body);
+    })
+    .then((response) => {
+      res.status(201).send(response);
     })
     .catch(next);
 };

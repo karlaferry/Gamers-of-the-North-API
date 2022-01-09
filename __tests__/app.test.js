@@ -594,27 +594,7 @@ describe("GET /api/reviews/:review_id/comments", () => {
 });
 
 describe("POST /api/reviews/:review_id/comments", () => {
-  it("201: returns the new comment", async () => {
-    const {
-      body: { comment },
-    } = await request(app)
-      .post("/api/reviews/2/comments")
-      .send({ username: "mallionaire", body: "This is a new comment." })
-      .expect(201);
-    expect(comment).toBeInstanceOf(Object);
-    expect(comment.body).toBe("This is a new comment.");
-    expect(comment).toEqual(
-      expect.objectContaining({
-        comment_id: expect.any(Number),
-        author: expect.any(String),
-        review_id: expect.any(Number),
-        votes: expect.any(Number),
-        created_at: expect.any(String),
-        body: expect.any(String),
-      })
-    );
-  });
-  it("201: ignores unnecessary properties", async () => {
+  it("201: returns the new comment, ignores unnecessary properties", async () => {
     const {
       body: { comment },
     } = await request(app)
@@ -622,7 +602,7 @@ describe("POST /api/reviews/:review_id/comments", () => {
       .send({
         username: "mallionaire",
         body: "This is a new comment.",
-        age: 22,
+        date: "today",
       })
       .expect(201);
     expect(comment).toBeInstanceOf(Object);
@@ -720,6 +700,65 @@ describe("GET /api/users", () => {
   it("404: returns a page not found error when path is misspelt", async () => {
     const { statusCode } = await request(app).get("/api/userz").expect(404);
     expect(statusCode).toBe(404);
+  });
+});
+
+describe("POST /api/users", () => {
+  it("201: returns the new user, ignores unnecessary properties", async () => {
+    const {
+      body: { user },
+    } = await request(app)
+      .post("/api/users")
+      .send({
+        username: "zelda",
+        avatar_url: "https://avatarfiles.alphacoders.com/123/123266.png",
+        name: "princess zelda",
+        age: 22,
+      })
+      .expect(201);
+    expect(user).toBeInstanceOf(Object);
+    expect(user).toEqual(
+      expect.objectContaining({
+        username: expect.any(String),
+        avatar_url: expect.any(String),
+        name: expect.any(String),
+      })
+    );
+  });
+  it("400: returns 'Bad request. Incomplete post body.' when post body is incomplete", async () => {
+    const {
+      body: { msg },
+    } = await request(app)
+      .post("/api/users")
+      .send({ username: "zelda" })
+      .expect(400);
+    expect(msg).toBe("Bad request. Incomplete post body.");
+  });
+  it("400: returns 'Bad request. Invalid username' when username is in the wrong data type", async () => {
+    const {
+      body: { msg },
+    } = await request(app)
+      .post("/api/users")
+      .send({
+        username: 123,
+        avatar_url: "https://avatarfiles.alphacoders.com/123/123266.png",
+        name: "princess zelda",
+      })
+      .expect(400);
+    expect(msg).toBe("Bad request. Invalid username.");
+  });
+  it("400: returns 'Username already taken", async () => {
+    const {
+      body: { msg },
+    } = await request(app)
+      .post("/api/users")
+      .send({
+        username: "mallionaire",
+        avatar_url: "https://avatarfiles.alphacoders.com/123/123266.png",
+        name: "princess zelda",
+      })
+      .expect(400);
+    expect(msg).toBe("Username already taken.");
   });
 });
 

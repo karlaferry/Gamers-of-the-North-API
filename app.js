@@ -5,6 +5,7 @@ const {
   customErrorHandling,
   handle404,
   handle500,
+  handlePSQLError,
 } = require("./errors/errors");
 
 // CREATE SERVER
@@ -19,6 +20,7 @@ app.use("/api", apiRouter);
 
 // ERROR HANDLING
 app.use(customErrorHandling);
+// app.use(handlePSQLError);
 app.use(handle500);
 app.all("/*", handle404);
 

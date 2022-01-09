@@ -256,6 +256,29 @@
       ]
     }
   },
+  "POST /api/users": {
+    "description": "Allows client to add a user.",
+    "queries": [],
+    "requestBody": {
+      "keys": {
+        "username": ["string", "required"],
+        "avatar_url": ["string"],
+        "name": ["string", "required"]
+      },
+      "exampleBody": {
+        "username": "zelda",
+        "avatar_url": "https://avatarfiles.alphacoders.com/123/123266.png",
+        "name": "princess zelda"
+      }
+    },
+    "exampleResponse": {
+      "user": {
+        "username": "zelda",
+        "avatar_url": "https://avatarfiles.alphacoders.com/123/123266.png",
+        "name": "princess zelda"
+      }
+    }
+  },
   "GET /api/users/:username": {
     "description": "Serves a single user by username.",
     "queries": [],

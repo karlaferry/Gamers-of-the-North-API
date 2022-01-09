@@ -260,3 +260,30 @@ exports.alterCommentBodyById = (id, body) => {
     });
   }
 };
+
+exports.postUser = ({ username, avatar_url, name }) => {
+  let avatar = avatar_url;
+  if (avatar_url === undefined) {
+    avatar =
+      "https://www.pngfind.com/pngs/m/664-6644794_png-file-windows-10-person-icon-transparent-png.png";
+  }
+  if (name === undefined) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request. Incomplete post body.",
+    });
+  } else {
+    const query = format(
+      `
+      INSERT INTO users
+      (username, avatar_url, name)
+      VALUES
+      %L
+      RETURNING*;`,
+      [[username.toLowerCase(), avatar, name]]
+    );
+    return db.query(query).then(({ rows }) => {
+      return { user: rows[0] };
+    });
+  }
+};
