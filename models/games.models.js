@@ -243,3 +243,20 @@ exports.selectCommentById = (id) => {
     return { comment: rows[0] };
   });
 };
+
+exports.alterCommentBodyById = (id, body) => {
+  const selectQuery = `SELECT * FROM comments WHERE comment_id = ${id};`;
+  if (body.hasOwnProperty("body")) {
+    const query = {
+      text: `UPDATE comments SET body = $1 WHERE comment_id = ${id} RETURNING*;`,
+      values: [body.body],
+    };
+    return db.query(query).then(({ rows }) => {
+      return { comment: rows[0] };
+    });
+  } else {
+    return db.query(selectQuery).then(({ rows }) => {
+      return { comment: rows[0] };
+    });
+  }
+};

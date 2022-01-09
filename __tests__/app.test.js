@@ -186,7 +186,69 @@ describe("PATCH /api/comments/:comment_id", () => {
   });
 });
 
-describe("PATCH /api/comments/:comment_id/body", () => {});
+describe("PATCH /api/comments/:comment_id/body", () => {
+  it("201: returns the updated comment", async () => {
+    const {
+      body: { comment },
+    } = await request(app)
+      .patch("/api/comments/1/body")
+      .send({ body: "New comment body here." })
+      .expect(201);
+    expect(comment.body).toBe("New comment body here.");
+    expect(comment).toEqual(
+      expect.objectContaining({
+        comment_id: expect.any(Number),
+        body: expect.any(String),
+        votes: expect.any(Number),
+        author: expect.any(String),
+        review_id: expect.any(Number),
+        created_at: expect.any(String),
+      })
+    );
+  });
+  it("201: returns the unchanged comment if patch body is empty", async () => {
+    const {
+      body: { comment },
+    } = await request(app).patch("/api/comments/1/body").send().expect(201);
+    const commentBody = "I loved this game too!";
+    expect(comment.body).toBe(commentBody);
+    expect(comment).toEqual(
+      expect.objectContaining({
+        comment_id: expect.any(Number),
+        body: expect.any(String),
+        votes: expect.any(Number),
+        author: expect.any(String),
+        review_id: expect.any(Number),
+        created_at: expect.any(String),
+      })
+    );
+  });
+  it("400: returns 'Bad request. Invalid ID.' when id is in the wrong data type", async () => {
+    const {
+      body: { msg },
+    } = await request(app)
+      .patch("/api/comments/bananas/body")
+      .send({ body: "New comment body here." })
+      .expect(400);
+    expect(msg).toBe("Bad request. Invalid ID.");
+  });
+  it("404: returns 'ID does not exist' when id doesn't exist", async () => {
+    const {
+      body: { msg },
+    } = await request(app)
+      .patch("/api/comments/99999/body")
+      .send({ body: "New comment body here." })
+      .expect(404);
+    expect(msg).toBe("ID does not exist.");
+  });
+  it("404: returns a page not found error when path is misspelt", async () => {
+    const { statusCode } = await request(app)
+      .patch("/api/comments/2/bodyz")
+      .send({ body: "New comment body here." })
+      .expect(404);
+    expect(statusCode).toBe(404);
+  });
+});
 
 describe("DELETE /api/comments/:comment_id", () => {
   it("204: deletes the comment and returns no content", async () => {

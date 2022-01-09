@@ -13,6 +13,7 @@ const {
   selectComments,
   alterReviewBodyById,
   selectCommentById,
+  alterCommentBodyById,
 } = require("../models/games.models");
 const { checkIfIdExists, checkIfUserNameExists } = require("../db/utils");
 
@@ -150,7 +151,7 @@ exports.updateCommentVotesById = (req, res, next) => {
     .catch(next);
 };
 
-exports.selectComments = (req, res, next) => {
+exports.getComments = (req, res, next) => {
   const queries = {};
   queries.criteria = req.query.sort_by || "created_at";
   queries.order = req.query.order || "DESC";
@@ -183,6 +184,19 @@ exports.getCommentById = (req, res, next) => {
   ])
     .then((response) => {
       res.status(200).send(response[0]);
+    })
+    .catch(next);
+};
+
+exports.updateCommentBodyById = (req, res, next) => {
+  const { comment_id } = req.params;
+  const { body } = req;
+  return Promise.all([
+    alterCommentBodyById(comment_id, body),
+    checkIfIdExists("comment_id", comment_id, "comments"),
+  ])
+    .then((response) => {
+      res.status(201).send(response[0]);
     })
     .catch(next);
 };
