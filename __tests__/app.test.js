@@ -573,6 +573,7 @@ describe("GET /api/reviews/:review_id/comments", () => {
       );
     });
   });
+
   it("200: returns an empty array of comments if review_id does not have comments", async () => {
     const {
       body: { comments },
