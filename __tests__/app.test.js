@@ -370,7 +370,7 @@ describe("GET /api/reviews", () => {
 });
 
 describe("GET /api/reviews/:review_id", () => {
-  it.only('200: returns an object with "review" key and value of object with required keys', async () => {
+  it('200: returns an object with "review" key and value of object with required keys', async () => {
     const {
       body: { review },
     } = await request(app).get("/api/reviews/1").expect(200);
