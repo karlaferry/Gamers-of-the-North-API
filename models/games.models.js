@@ -13,7 +13,7 @@ exports.selectReviewById = (id) => {
   const query = {
     text: `
     SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count 
-    FROM comments JOIN reviews ON reviews.review_id = comments.review_id 
+    FROM comments RIGHT JOIN reviews ON reviews.review_id = comments.review_id 
     WHERE reviews.review_id = $1 
     GROUP BY reviews.review_id;`,
     values: [id],
@@ -213,7 +213,7 @@ exports.selectComments = ({ criteria, order }) => {
 
 exports.alterReviewBodyById = (id, body) => {
   const selectQuery = `SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count 
-  FROM comments JOIN reviews ON reviews.review_id = comments.review_id 
+  FROM comments RIGHT JOIN reviews ON reviews.review_id = comments.review_id 
   WHERE reviews.review_id = ${id} 
   GROUP BY reviews.review_id;`;
   if (body.hasOwnProperty("review_body")) {

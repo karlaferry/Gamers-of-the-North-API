@@ -370,10 +370,10 @@ describe("GET /api/reviews", () => {
 });
 
 describe("GET /api/reviews/:review_id", () => {
-  it('200: returns an object with "review" key and value of object with required keys', async () => {
+  it.only('200: returns an object with "review" key and value of object with required keys', async () => {
     const {
       body: { review },
-    } = await request(app).get("/api/reviews/2").expect(200);
+    } = await request(app).get("/api/reviews/1").expect(200);
     expect(review).toBeInstanceOf(Object);
     expect(review).toEqual(
       expect.objectContaining({
