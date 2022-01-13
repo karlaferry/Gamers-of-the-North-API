@@ -114,7 +114,6 @@ describe("GET /api/comments/author/:author", () => {
     const {
       body: { comments },
     } = await request(app).get("/api/comments/user/bainesface").expect(200);
-    console.log(comments);
     expect(comments[0]).toBeInstanceOf(Object);
     expect(comments).toHaveLength(2);
     comments.forEach((comment) => {
