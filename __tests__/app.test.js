@@ -109,7 +109,7 @@ describe("GET /api/comments/:comment_id", () => {
   });
 });
 
-describe.only("GET /api/comments/author/:author", () => {
+describe("GET /api/comments/author/:author", () => {
   it('200: returns an object with "comment" key and value of object with required keys ', async () => {
     const {
       body: { comments },
