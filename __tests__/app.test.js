@@ -296,7 +296,7 @@ describe("DELETE /api/comments/:comment_id", () => {
   });
 });
 
-describe.only("GET /api/reviews", () => {
+describe("GET /api/reviews", () => {
   it('200: returns an object with "reviews" key with array of objects with required keys', async () => {
     const {
       body: { reviews },
