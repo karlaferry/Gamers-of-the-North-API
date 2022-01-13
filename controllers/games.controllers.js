@@ -15,6 +15,7 @@ const {
   selectCommentById,
   alterCommentBodyById,
   postUser,
+  selectCommentsByUser,
 } = require("../models/games.models");
 const {
   checkIfIdExists,
@@ -217,4 +218,18 @@ exports.addUser = (req, res, next) => {
       res.status(201).send(response);
     })
     .catch(next);
+};
+
+exports.getCommentsByUser = (req, res, next) => {
+  const { username } = req.params;
+  checkIfUserNameExists("username", username, "users")
+    .then(() => {
+      return selectCommentsByUser(username);
+    })
+    .then((response) => {
+      res.status(200).send(response);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };

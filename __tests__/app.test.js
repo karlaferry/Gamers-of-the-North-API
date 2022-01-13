@@ -109,6 +109,28 @@ describe("GET /api/comments/:comment_id", () => {
   });
 });
 
+describe.only("GET /api/comments/author/:author", () => {
+  it('200: returns an object with "comment" key and value of object with required keys ', async () => {
+    const {
+      body: { comments },
+    } = await request(app).get("/api/comments/user/bainesface").expect(200);
+    console.log(comments);
+    expect(comments[0]).toBeInstanceOf(Object);
+    expect(comments).toHaveLength(2);
+    comments.forEach((comment) => {
+      expect(comment).toEqual(
+        expect.objectContaining({
+          comment_id: expect.any(Number),
+          author: expect.any(String),
+          review_id: expect.any(Number),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+          body: expect.any(String),
+        })
+      );
+    });
+  });
+});
 describe("PATCH /api/comments/:comment_id", () => {
   it("200: returns the updated comment with increased votes", async () => {
     const { rows } = await db.query(

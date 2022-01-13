@@ -2,6 +2,7 @@ const db = require("../db/connection");
 const format = require("pg-format");
 const description = require("../description.json");
 const { checkIfCategoryExists } = require("../db/utils");
+const res = require("express/lib/response");
 
 exports.selectCategories = () => {
   return db.query("SELECT * FROM categories").then(({ rows }) => {
@@ -286,4 +287,14 @@ exports.postUser = ({ username, avatar_url, name }) => {
       return { user: rows[0] };
     });
   }
+};
+
+exports.selectCommentsByUser = (username) => {
+  const query = {
+    text: `SELECT * FROM comments WHERE author = $1 ORDER BY created_at desc;`,
+    values: [username],
+  };
+  return db.query(query).then(({ rows }) => {
+    return { comments: rows };
+  });
 };

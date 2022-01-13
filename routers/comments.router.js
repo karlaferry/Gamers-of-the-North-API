@@ -5,9 +5,11 @@ const {
   getComments,
   getCommentById,
   updateCommentBodyById,
+  getCommentsByUser,
 } = require("../controllers/games.controllers");
 
 commentsRouter.route("/").get(getComments);
+commentsRouter.route("/user/:username").get(getCommentsByUser);
 commentsRouter
   .route("/:comment_id")
   .get(getCommentById)
