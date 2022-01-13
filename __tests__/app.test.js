@@ -296,7 +296,7 @@ describe("DELETE /api/comments/:comment_id", () => {
   });
 });
 
-describe("GET /api/reviews", () => {
+describe.only("GET /api/reviews", () => {
   it('200: returns an object with "reviews" key with array of objects with required keys', async () => {
     const {
       body: { reviews },
@@ -345,6 +345,14 @@ describe("GET /api/reviews", () => {
       .get("/api/reviews?sort_by=votes&order=asc")
       .expect(200);
     expect(reviews).toBeSortedBy("votes", { descending: false });
+  });
+  it("200: returns an array of objects with limit", async () => {
+    const {
+      body: { reviews },
+    } = await request(app)
+      .get("/api/reviews?sort_by=votes&order=asc&limit=10&p=1")
+      .expect(200);
+    expect(reviews.length <= 10).toBe(true);
   });
   it("200: returns an array of objects filtered by category", async () => {
     const {

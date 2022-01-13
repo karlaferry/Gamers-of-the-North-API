@@ -74,7 +74,9 @@ exports.checkIfNewUserExists = async (paramKey, username, table) => {
 exports.checkIfCategoryExists = async (category) => {
   const { rows } = await db.query("SELECT * FROM categories;");
   const categories = rows.map((item) => item.slug);
-  if (!isNaN(category)) {
+  if (category === undefined) {
+    return;
+  } else if (!isNaN(category)) {
     return Promise.reject({
       status: 400,
       msg: "Bad request. Invalid category.",

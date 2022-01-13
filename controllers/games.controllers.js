@@ -21,6 +21,7 @@ const {
   checkIfIdExists,
   checkIfUserNameExists,
   checkIfNewUserExists,
+  checkIfCategoryExists,
 } = require("../db/utils");
 
 exports.getCategories = (req, res, next) => {
@@ -60,11 +61,17 @@ exports.getReviews = (req, res, next) => {
   const queries = {};
   queries.criteria = req.query.sort_by || "created_at";
   queries.order = req.query.order || "DESC";
-
   if (req.query.hasOwnProperty("category")) {
     queries.category = req.query.category;
   }
-  selectReviews(queries)
+  if (req.query.hasOwnProperty("limit") && req.query.hasOwnProperty("p")) {
+    queries.limit = req.query.limit;
+    queries.p = req.query.p;
+  }
+  return checkIfCategoryExists(queries.category)
+    .then(() => {
+      return selectReviews(queries);
+    })
     .then((response) => {
       res.status(200).send(response);
     })
