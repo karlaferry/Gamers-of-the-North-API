@@ -633,6 +633,15 @@ describe("GET /api/reviews/:review_id/comments", () => {
     } = await request(app).get("/api/reviews/9/comments").expect(200);
     expect(comments).toHaveLength(0);
   });
+
+  it("200 returns a sorted array", async () => {
+    const {
+      body: { comments },
+    } = await request(app)
+      .get("/api/reviews/2/comments?sort_by=author&order=asc")
+      .expect(200);
+    expect(comments).toBeSortedBy("author", { descending: false });
+  });
   it("400: returns 'Bad request. Invalid ID' when id is in the wrong data type", async () => {
     const {
       body: { msg },

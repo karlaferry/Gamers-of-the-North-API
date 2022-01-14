@@ -79,9 +79,13 @@ exports.getReviews = (req, res, next) => {
 };
 
 exports.getCommentsByReviewId = (req, res, next) => {
+  const queries = {};
+  queries.criteria = req.query.sort_by || "created_at";
+  queries.order = req.query.order || "DESC";
+
   const { review_id } = req.params;
   return Promise.all([
-    selectCommentsByReviewId(review_id),
+    selectCommentsByReviewId(review_id, queries),
     checkIfIdExists("review_id", review_id, "reviews"),
   ])
     .then((response) => {

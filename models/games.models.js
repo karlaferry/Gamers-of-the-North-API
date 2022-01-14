@@ -92,9 +92,25 @@ exports.selectReviews = ({ criteria, order, category, limit, p }) => {
   }
 };
 
-exports.selectCommentsByReviewId = (id) => {
+exports.selectCommentsByReviewId = (id, queries) => {
+  const { criteria, order } = queries;
+  if (
+    !["comment_id", "author", "review_id", "created_at", "votes"].includes(
+      criteria
+    )
+  ) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request. Invalid criteria.",
+    });
+  } else if (!["ASC", "DESC", "asc", "desc"].includes(order)) {
+    return Promise.reject({
+      status: 400,
+      msg: "Bad request. Invalid order.",
+    });
+  }
   const query = {
-    text: `SELECT * FROM comments WHERE review_id = $1 ORDER BY created_at desc;`,
+    text: `SELECT * FROM comments WHERE review_id = $1 ORDER BY ${criteria} ${order};`,
     values: [id],
   };
   return db.query(query).then(({ rows }) => {
