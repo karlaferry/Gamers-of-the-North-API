@@ -64,9 +64,9 @@ exports.getReviews = (req, res, next) => {
   if (req.query.hasOwnProperty("category")) {
     queries.category = req.query.category;
   }
-  if (req.query.hasOwnProperty("limit") && req.query.hasOwnProperty("p")) {
+  if (req.query.hasOwnProperty("limit")) {
     queries.limit = req.query.limit;
-    queries.p = req.query.p;
+    queries.p = req.query.p || 0;
   }
   return checkIfCategoryExists(queries.category)
     .then(() => {

@@ -350,9 +350,33 @@ describe("GET /api/reviews", () => {
     const {
       body: { reviews },
     } = await request(app)
-      .get("/api/reviews?sort_by=votes&order=asc&limit=10&p=1")
+      .get("/api/reviews?sort_by=votes&order=asc&limit=10&p=0")
       .expect(200);
     expect(reviews.length <= 10).toBe(true);
+  });
+  it("200: returns an array of all objects reviews if length is less than limit", async () => {
+    const {
+      body: { reviews },
+    } = await request(app)
+      .get("/api/reviews?sort_by=votes&order=asc&limit=30&p=0")
+      .expect(200);
+    expect(reviews.length === 13).toBe(true);
+  });
+  it("200: returns an array of objects reviews page 2", async () => {
+    const {
+      body: { reviews },
+    } = await request(app)
+      .get("/api/reviews?sort_by=votes&order=asc&limit=12&p=1")
+      .expect(200);
+    expect(reviews.length === 1).toBe(true);
+  });
+  it("200: Offset defaults to 0 if not specified", async () => {
+    const {
+      body: { reviews },
+    } = await request(app)
+      .get("/api/reviews?sort_by=votes&order=asc&limit=12")
+      .expect(200);
+    expect(reviews.length === 12).toBe(true);
   });
   it("200: returns an array of objects filtered by category", async () => {
     const {

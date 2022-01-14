@@ -75,8 +75,7 @@ exports.selectReviews = ({ criteria, order, category, limit, p }) => {
       query.values = [category];
     }
     query.text += ` GROUP BY reviews.review_id ORDER BY ${criteria} ${order}`;
-
-    if (limit && p) {
+    if (limit) {
       if (isNaN(limit) || isNaN(p)) {
         return Promise.reject({
           status: 400,
@@ -86,34 +85,11 @@ exports.selectReviews = ({ criteria, order, category, limit, p }) => {
         query.text += ` LIMIT ${limit} OFFSET ${p * limit}`;
       }
     }
-
     query.text += ";";
     return db.query(query).then(({ rows }) => {
       return { reviews: rows };
     });
   }
-
-  // if (category !== undefined) {
-  //   return checkIfCategoryExists(category).then(() => {
-  //     query.text = `SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id WHERE category = $1 GROUP BY reviews.review_id ORDER BY ${criteria} ${order} LIMIT ${limit} OFFSET ${
-  //       p * limit
-  //     };`;
-  //     query.values = [category];
-  //     return db.query(query).then(({ rows }) => {
-  //       return { reviews: rows };
-  //     });
-  //   });
-  // } else {
-  //   return db
-  //     .query(
-  //       `SELECT reviews.*, COUNT(comments.review_id)::INTEGER AS comment_count FROM reviews LEFT JOIN comments ON reviews.review_id = comments.review_id GROUP BY reviews.review_id ORDER BY ${criteria} ${order} LIMIT ${limit} OFFSET ${
-  //         p * limit
-  //       };`
-  //     )
-  //     .then(({ rows }) => {
-  //       return { reviews: rows };
-  //     });
-  // }
 };
 
 exports.selectCommentsByReviewId = (id) => {
